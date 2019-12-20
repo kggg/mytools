@@ -1,7 +1,14 @@
 package files
+import(
+	"fmt"
+	"io"
+	"bufio"
+	"os"
+	"strings"
+)
 
 type Fileinfo struct {
-	Finlename string
+	Filename string
 }
 
 func (c *Fileinfo) Append(str string){
@@ -9,7 +16,7 @@ func (c *Fileinfo) Append(str string){
     if err != nil {
         fmt.Println(err)
         return
-    }
+	}
     for _,v := range content {
         if v == "" || len(v) == 0 || v =="\r\n" {
             continue
@@ -30,7 +37,7 @@ func (c *Fileinfo) Unshift(str string){
         if v == "" || len(v) == 0 || v =="\r\n" {
             continue
         }
-        fmt.Printf("%s %s",str, v)
+        fmt.Printf("%s %s\n",str, v)
     }
 }
 
@@ -41,11 +48,8 @@ func (c *Fileinfo) Shift(str string){
         return
     }
     for _, v := range content {
-        if v == "" || len(v) == 0 || v == "\r\n" {
-            continue
-        }
         v = strings.TrimPrefix(v, str)
-        fmt.Printf("%s",  v)
+        fmt.Printf("%s\n",  v)
     }
 }
 
@@ -77,19 +81,19 @@ func (c *Fileinfo) getcontent()([]string, error){
     content, err := os.Open(c.Filename)
     if err != nil {
         return nil, err
-    }
-    defer content.Close()
+	}
+	defer content.Close()
     var data []string
     reader := bufio.NewReader(content)
     for {
-        line, err := reader.ReadString('\n')
+		line,_, err := reader.ReadLine()
         if err != nil {
             if err == io.EOF {
                 break
             }
             return nil, err
-        }
-        data = append(data, line)
+		}
+        data = append(data, string(line))
     }
     return data, nil
 }
