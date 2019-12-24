@@ -1,8 +1,10 @@
 package web
-import(
-	""
+
+import (
+	"mytools/web/routes"
 )
 
-func Service(){
-	r := gin.Default()
+func Service(addr string) {
+	route := routes.Initroute()
+	route.Run(addr)
 }

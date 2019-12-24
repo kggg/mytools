@@ -1,15 +1,18 @@
 package main
-import(
+
+import (
 	"fmt"
 
 	"mytools/command"
 	"mytools/files"
+	"mytools/web"
 )
-func main(){
+
+func main() {
 	cmd := command.Command()
 	switch cmd.Module {
 	case "files":
-		finfo := &files.Fileinfo{ Filename: cmd.Target }
+		finfo := &files.Fileinfo{Filename: cmd.Target}
 		switch cmd.Action {
 		case "append":
 			finfo.Append(cmd.Words)
@@ -26,5 +29,7 @@ func main(){
 		}
 	case "ssh":
 		fmt.Println("devp...")
+	case "web":
+		web.Service(cmd.Target)
 	}
 }
