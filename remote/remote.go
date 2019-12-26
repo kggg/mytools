@@ -20,7 +20,7 @@ type Client struct {
 }
 
 // NewClient 创建ssh连接
-func NewClient(ip, user, pass string, port int, skey bool, hostname string) (*Client, error) {
+func NewClient(ip, user, pass string, port int, hostname string, skey bool) (*Client, error) {
 	var authMethod ssh.AuthMethod
 	authMethod = ssh.Password(pass)
 	if skey {
@@ -41,6 +41,21 @@ func NewClient(ip, user, pass string, port int, skey bool, hostname string) (*Cl
 	conclient.Hostname = hostname
 	conclient.Addr = ip
 	return conclient, nil
+}
+
+func (this *Client) session() *ssh.Session {
+	session, err := this.SshClient.NewSession()
+	if err != nil {
+		return nil
+	}
+	return session
+}
+
+func (this *Client) Run(cmd string) ([]byte, error) {
+	session := this.session()
+	defer session.Close()
+	res, err := session.CombinedOutput(cmd)
+	return res, err
 }
 
 func PublicKeyFile(file string) (ssh.AuthMethod, error) {
