@@ -10,8 +10,28 @@ import (
 )
 
 // Getfile 从远程机子上复制文件到本地
-func (c *Client) Getfile() {
+func (c *Client) Getfile(src, dst string) error {
+	localname := path.Base(dst)
+	localFile, err := os.Create(path.Join(src, localname))
+	if err != nil {
+		return err
+	}
+	defer localFile.Close()
+	sftpClient, err := sftp.NewClient(c.SshClient)
+	if err != nil {
+		return err
+	}
+	defer sftpClient.Close()
+	remoteFile, err := sftpClient.Open(dst)
+	if err != nil {
+		return err
+	}
 
+	defer remoteFile.Close()
+	if _, err = remoteFile.WriteTo(localFile); err != nil {
+		return err
+	}
+	return nil
 }
 
 // Sendfile 发送本地文件到远程机子上

@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strings"
 
 	"mytools/command"
 	"mytools/files"
@@ -42,7 +43,21 @@ func main() {
 		}
 		switch cmd.Action {
 		case "sendfile":
+			src := strings.Split(cmd.Words, " ")[0]
+			dst := strings.Split(cmd.Words, " ")[1]
+			err := cliet.Sendfile(src, dst)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
 		case "getfile":
+			src := strings.Split(cmd.Words, " ")[0]
+			dst := strings.Split(cmd.Words, " ")[1]
+			err := cliet.Getfile(src, dst)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
 		default:
 			result, err := cliet.Run(cmd.Words)
 			if err != nil {

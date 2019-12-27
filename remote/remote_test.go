@@ -6,7 +6,7 @@ import (
 )
 
 func TestRun(t *testing.T) {
-	client, err := NewClient("10.68.2.30", "steven", "steven", 22, "nocserver", false)
+	client, err := NewClient("10.68.2.30", "steven", "steven", 22, false)
 	if err != nil {
 		t.Error(err)
 	}
@@ -18,7 +18,7 @@ func TestRun(t *testing.T) {
 }
 
 func TestSendfile(t *testing.T) {
-	client, err := NewClient("10.68.2.30", "steven", "steven", 22, "nocserver", false)
+	client, err := NewClient("10.68.2.30", "steven", "steven", 22, false)
 	if err != nil {
 		t.Error(err)
 	}
