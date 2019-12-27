@@ -5,6 +5,8 @@ import (
 
 	"mytools/command"
 	"mytools/files"
+	"mytools/remote"
+	"mytools/remote/config"
 	"mytools/web"
 )
 
@@ -28,7 +30,28 @@ func main() {
 			fmt.Println("nothing to do")
 		}
 	case "ssh":
-		fmt.Println("devp...")
+		hostinfo, err := config.Readconfig(cmd.Target)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		cliet, err := remote.NewClient(hostinfo.Ipaddr, hostinfo.User, hostinfo.Pass, hostinfo.Port, hostinfo.Skey)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		switch cmd.Action {
+		case "sendfile":
+		case "getfile":
+		default:
+			result, err := cliet.Run(cmd.Words)
+			if err != nil {
+				fmt.Println(err)
+				//return
+			}
+			fmt.Println(string(result))
+
+		}
 	case "web":
 		web.Service(cmd.Target)
 	}

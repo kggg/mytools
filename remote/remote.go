@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"net"
 	"os"
 	"path/filepath"
 	"time"
@@ -15,12 +14,11 @@ import (
 // Client SSH结构体
 type Client struct {
 	SshClient *ssh.Client
-	Hostname  string
 	Addr      string
 }
 
 // NewClient 创建ssh连接
-func NewClient(ip, user, pass string, port int, hostname string, skey bool) (*Client, error) {
+func NewClient(ip, user, pass string, port int, skey bool) (*Client, error) {
 	var authMethod ssh.AuthMethod
 	authMethod = ssh.Password(pass)
 	if skey {
@@ -38,21 +36,20 @@ func NewClient(ip, user, pass string, port int, hostname string, skey bool) (*Cl
 	}
 	var conclient = &Client{}
 	conclient.SshClient = sshclient
-	conclient.Hostname = hostname
 	conclient.Addr = ip
 	return conclient, nil
 }
 
-func (this *Client) session() *ssh.Session {
-	session, err := this.SshClient.NewSession()
+func (c *Client) session() *ssh.Session {
+	session, err := c.SshClient.NewSession()
 	if err != nil {
 		return nil
 	}
 	return session
 }
 
-func (this *Client) Run(cmd string) ([]byte, error) {
-	session := this.session()
+func (c *Client) Run(cmd string) ([]byte, error) {
+	session := c.session()
 	defer session.Close()
 	res, err := session.CombinedOutput(cmd)
 	return res, err
@@ -81,20 +78,14 @@ func connect(ip, user, password string, port int, authMethod ssh.AuthMethod) (*s
 		Auth: []ssh.AuthMethod{authMethod},
 		//	HostKeyCallback: ssh.FixedHostKey(hostKey),
 		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
+		Timeout:         timeout,
 	}
 
 	// connet to ssh
 	addr := fmt.Sprintf("%s:%d", ip, port)
-
-	conn, err := net.DialTimeout("tcp", addr, timeout)
+	client, err := ssh.Dial("tcp", addr, clientConfig)
 	if err != nil {
 		return nil, err
 	}
-	sshConn, chans, reqs, err := ssh.NewClientConn(conn, ip, clientConfig)
-	if err != nil {
-		return nil, err
-	}
-	client := ssh.NewClient(sshConn, chans, reqs)
-
 	return client, nil
 }

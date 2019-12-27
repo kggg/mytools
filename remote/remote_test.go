@@ -16,3 +16,14 @@ func TestRun(t *testing.T) {
 	}
 	fmt.Println(string(res))
 }
+
+func TestSendfile(t *testing.T) {
+	client, err := NewClient("10.68.2.30", "steven", "steven", 22, "nocserver", false)
+	if err != nil {
+		t.Error(err)
+	}
+	err = client.Sendfile("aa.txt", "/home/steven/")
+	if err != nil {
+		t.Error(err)
+	}
+}
