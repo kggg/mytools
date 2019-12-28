@@ -8,11 +8,12 @@ import (
 	"strings"
 )
 
+// Fileinfo 文件结构
 type Fileinfo struct {
 	Filename string
 }
 
-// Append append string to end of line.
+// Append append str to end of line.
 func (c *Fileinfo) Append(str string) {
 	content, err := c.getcontent()
 	if err != nil {
@@ -29,6 +30,7 @@ func (c *Fileinfo) Append(str string) {
 	}
 }
 
+// Unshift 在行首添加str
 func (c *Fileinfo) Unshift(str string) {
 	content, err := c.getcontent()
 	if err != nil {
@@ -43,6 +45,7 @@ func (c *Fileinfo) Unshift(str string) {
 	}
 }
 
+//Shift 删除行首中包含str的内容
 func (c *Fileinfo) Shift(str string) {
 	content, err := c.getcontent()
 	if err != nil {
@@ -55,6 +58,7 @@ func (c *Fileinfo) Shift(str string) {
 	}
 }
 
+//Pop 截取行尾str的内容
 func (c *Fileinfo) Pop(str string) {
 	content, err := c.getcontent()
 	if err != nil {
@@ -63,10 +67,11 @@ func (c *Fileinfo) Pop(str string) {
 	}
 	for _, v := range content {
 		v = strings.TrimSuffix(v, str)
-		fmt.Printf("%s", v)
+		fmt.Printf("%s\n", v)
 	}
 }
 
+//Delete 删除str的内容
 func (c *Fileinfo) Delete(str string) {
 	content, err := c.getcontent()
 	if err != nil {
@@ -79,6 +84,7 @@ func (c *Fileinfo) Delete(str string) {
 	}
 }
 
+// getcontent 获取文件的内容
 func (c *Fileinfo) getcontent() ([]string, error) {
 	content, err := os.Open(c.Filename)
 	if err != nil {
@@ -100,6 +106,7 @@ func (c *Fileinfo) getcontent() ([]string, error) {
 	return data, nil
 }
 
+// Print 打印
 func (c *Fileinfo) Print() {
 	content, err := c.getcontent()
 	if err != nil {
@@ -109,4 +116,14 @@ func (c *Fileinfo) Print() {
 	for k, v := range content {
 		fmt.Println(k, v)
 	}
+}
+
+// Save 保存操作到文件
+func (c *Fileinfo) Save() {
+
+}
+
+// Search 查找内容
+func (c *Fileinfo) Search(str string) {
+
 }
