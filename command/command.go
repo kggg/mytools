@@ -1,30 +1,28 @@
 package command
 
-import(
-	"flag"
+import (
+	flag "github.com/spf13/pflag"
 )
 
 var (
 	module string
 	target string
-	words string
+	words  string
 	action string
-
 )
 
 type Cmd struct {
 	Module string
 	Target string
-	Words string
+	Words  string
 	Action string
-
 }
 
-func init(){
-	flag.StringVar(&module, "module", "default", "select module")
-	flag.StringVar(&target, "target", "","target action")
-	flag.StringVar(&words, "word", "", "strings of words")
-	flag.StringVar(&action, "action", "","action")
+func init() {
+	flag.StringVarP(&module, "module","m", "ssh", "选择模块")
+	flag.StringVarP(&target, "target", "t", "", "目标对象")
+	flag.StringVarP(&words, "word", "w","", "需要操作的内容")
+	flag.StringVarP(&action, "action", "a", "", "操作行为")
 }
 
 func Command() *Cmd {
@@ -32,7 +30,7 @@ func Command() *Cmd {
 	var cmd = &Cmd{
 		Module: module,
 		Target: target,
-		Words: words,
+		Words:  words,
 		Action: action,
 	}
 	return cmd
