@@ -50,6 +50,7 @@ func main() {
 				fmt.Println(err)
 				return
 			}
+			fmt.Printf("发送文件%s成功\n", src)
 		case "getfile":
 			src := strings.Split(cmd.Words, " ")[0]
 			dst := strings.Split(cmd.Words, " ")[1]
@@ -58,6 +59,7 @@ func main() {
 				fmt.Println(err)
 				return
 			}
+			fmt.Printf("接收文件%s成功\n", src)
 		default:
 			result, err := cliet.Run(cmd.Words)
 			if err != nil {
