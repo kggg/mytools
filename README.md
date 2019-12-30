@@ -1,7 +1,7 @@
 # mytools
 mytools 一个工具集, 可以对文件进行相应的操作，也可以对远程主机进行远程SSH操作， 可以提供一个go-gin的web服务进行测试  <br>
-文件案例: ./mytools -m files -t "/home/user/a.txt" -w "#" -a shift    //删除行首的注释 <br>
-远程发送文件案例： ./mytools -m ssh -t webserver -w "/etc/nginx/nginx.conf /etc/nginx" -a sendfile<br>
+* 文件操作: ./mytools -m files -t "/home/user/a.txt" -w "#" -a shift    //删除行首的注释 <br>
+* 远程发送文件： ./mytools -m ssh -t webserver -w "/etc/nginx/nginx.conf /etc/nginx" -a sendfile<br>
      ./mytools -module ssh -target webserver -words "/etc/nginx/nginx.conf /etc/nginx/" -action sendfile <br>
 
 ## -m | --module  使用的模块  
