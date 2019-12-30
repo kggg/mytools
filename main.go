@@ -18,15 +18,17 @@ func main() {
 		finfo := &files.Fileinfo{Filename: cmd.Target}
 		switch cmd.Action {
 		case "append":
-			finfo.Append(cmd.Words)
+			finfo.Append(cmd.Words, cmd.Save)
 		case "unshift":
-			finfo.Unshift(cmd.Words)
+			finfo.Unshift(cmd.Words, cmd.Save)
 		case "shift":
-			finfo.Shift(cmd.Words)
+			finfo.Shift(cmd.Words, cmd.Save)
 		case "pop":
-			finfo.Pop(cmd.Words)
+			finfo.Pop(cmd.Words, cmd.Save)
 		case "delete":
-			finfo.Delete(cmd.Words)
+			finfo.Delete(cmd.Words, cmd.Save)
+		case "search":
+			finfo.Search(cmd.Words)
 		default:
 			fmt.Println("nothing to do")
 		}

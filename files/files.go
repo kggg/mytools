@@ -2,10 +2,10 @@ package files
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
 	"io"
 	"os"
-	"strings"
 )
 
 // Fileinfo 文件结构
@@ -14,84 +14,206 @@ type Fileinfo struct {
 }
 
 // Append append str to end of line.
-func (c *Fileinfo) Append(str string) {
-	content, err := c.getcontent()
+func (c *Fileinfo) Append(str string, save bool) {
+	content, mode, err := c.getcontent()
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
+	var f *os.File
+	if save {
+		f, err = os.OpenFile(c.Filename, os.O_WRONLY|os.O_TRUNC, mode)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		defer f.Close()
+	}
+	var newcontent []byte
 	for _, v := range content {
-		if v == "" || len(v) == 0 || v == "\r\n" {
+		if len(v) == 0 {
 			continue
 		}
-		v = strings.Replace(v, "\n", "", 1)
-		v = strings.Replace(v, "\r\n", "", 1)
-		fmt.Printf("%s %s\n", v, str)
+		v = bytes.TrimSuffix(v, []byte("\n"))
+		v = bytes.TrimSuffix(v, []byte("\r\n"))
+
+		if save {
+			newcontent = append(newcontent, v...)
+			newcontent = append(newcontent, []byte(str+"\n")...)
+		} else {
+			fmt.Printf("%s %s\n", string(v), str)
+		}
+	}
+	if save {
+		_, err = f.Write(newcontent)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		fmt.Println("append success")
 	}
 }
 
 // Unshift 在行首添加str
-func (c *Fileinfo) Unshift(str string) {
-	content, err := c.getcontent()
+func (c *Fileinfo) Unshift(str string, save bool) {
+	content, mode, err := c.getcontent()
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
+	var f *os.File
+	if save {
+		f, err = os.OpenFile(c.Filename, os.O_WRONLY|os.O_TRUNC, mode)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		defer f.Close()
+	}
+	var newcontent []byte
 	for _, v := range content {
-		if v == "" || len(v) == 0 || v == "\r\n" {
+		if len(v) == 0 {
 			continue
 		}
-		fmt.Printf("%s %s\n", str, v)
+		if save {
+			newcontent = append(newcontent, []byte(str)...)
+			newcontent = append(newcontent, v...)
+			newcontent = append(newcontent, []byte("\n")...)
+		} else {
+			fmt.Printf("%s %s\n", str, v)
+		}
+	}
+	if save {
+		_, err = f.Write(newcontent)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		fmt.Println("unshift success")
 	}
 }
 
 //Shift 删除行首中包含str的内容
-func (c *Fileinfo) Shift(str string) {
-	content, err := c.getcontent()
+func (c *Fileinfo) Shift(str string, save bool) {
+	content, mode, err := c.getcontent()
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
+	var f *os.File
+	if save {
+		f, err = os.OpenFile(c.Filename, os.O_WRONLY|os.O_TRUNC, mode)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		defer f.Close()
+	}
+	var newcontent []byte
 	for _, v := range content {
-		v = strings.TrimPrefix(v, str)
-		fmt.Printf("%s\n", v)
+		v = bytes.TrimPrefix(v, []byte(str))
+		if save {
+			newcontent = append(newcontent, v...)
+			newcontent = append(newcontent, []byte("\n")...)
+		} else {
+			fmt.Printf("%s\n", v)
+		}
+	}
+	if save {
+		_, err = f.Write(newcontent)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		fmt.Println("shift success")
 	}
 }
 
 //Pop 截取行尾str的内容
-func (c *Fileinfo) Pop(str string) {
-	content, err := c.getcontent()
+func (c *Fileinfo) Pop(str string, save bool) {
+	content, mode, err := c.getcontent()
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
+	var f *os.File
+	if save {
+		f, err = os.OpenFile(c.Filename, os.O_WRONLY|os.O_TRUNC, mode)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		defer f.Close()
+	}
+	var newcontent []byte
 	for _, v := range content {
-		v = strings.TrimSuffix(v, str)
-		fmt.Printf("%s\n", v)
+		v = bytes.TrimSuffix(v, []byte(str))
+		if save {
+			newcontent = append(newcontent, v...)
+			newcontent = append(newcontent, []byte("\n")...)
+		} else {
+			fmt.Printf("%s\n", v)
+		}
+	}
+	if save {
+		_, err = f.Write(newcontent)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		fmt.Println("pop success")
 	}
 }
 
 //Delete 删除str的内容
-func (c *Fileinfo) Delete(str string) {
-	content, err := c.getcontent()
+func (c *Fileinfo) Delete(str string, save bool) {
+	content, mode, err := c.getcontent()
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
+	var f *os.File
+	if save {
+		f, err = os.OpenFile(c.Filename, os.O_WRONLY|os.O_TRUNC, mode)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		defer f.Close()
+	}
+	var newcontent []byte
 	for _, v := range content {
-		k := strings.Replace(v, str, "", 1)
-		fmt.Printf("%s", k)
+		v := bytes.Replace(v, []byte(str), []byte(""), 1)
+		if save {
+			newcontent = append(newcontent, v...)
+			newcontent = append(newcontent, []byte("\n")...)
+		} else {
+			fmt.Printf("%s\n", v)
+		}
+	}
+	if save {
+		_, err = f.Write(newcontent)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		fmt.Println("shift success")
 	}
 }
 
 // getcontent 获取文件的内容
-func (c *Fileinfo) getcontent() ([]string, error) {
+func (c *Fileinfo) getcontent() ([][]byte, os.FileMode, error) {
 	content, err := os.Open(c.Filename)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 	defer content.Close()
-	var data []string
+	finfo, err := content.Stat()
+	if err != nil {
+		return nil, 0, err
+	}
+	mode := finfo.Mode()
+	var data [][]byte
 	reader := bufio.NewReader(content)
 	for {
 		line, _, err := reader.ReadLine()
@@ -99,16 +221,16 @@ func (c *Fileinfo) getcontent() ([]string, error) {
 			if err == io.EOF {
 				break
 			}
-			return nil, err
+			return nil, 0, err
 		}
-		data = append(data, string(line))
+		data = append(data, line)
 	}
-	return data, nil
+	return data, mode, nil
 }
 
 // Print 打印
 func (c *Fileinfo) Print() {
-	content, err := c.getcontent()
+	content, _, err := c.getcontent()
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -118,12 +240,17 @@ func (c *Fileinfo) Print() {
 	}
 }
 
-// Save 保存操作到文件
-func (c *Fileinfo) Save() {
-
-}
-
 // Search 查找内容
 func (c *Fileinfo) Search(str string) {
+	content, _, err := c.getcontent()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	for _, v := range content {
+		if bytes.Contains(v, []byte(str)) {
+			fmt.Printf("%s\n", v)
+		}
+	}
 
 }
