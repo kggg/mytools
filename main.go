@@ -64,7 +64,6 @@ func main() {
 			result, err := cliet.Run(cmd.Words)
 			if err != nil {
 				fmt.Println(err)
-				//return
 			}
 			fmt.Println(string(result))
 
