@@ -72,5 +72,7 @@ func main() {
 		}
 	case "web":
 		web.Service(cmd.Target)
+	default:
+		fmt.Printf("格式不对")
 	}
 }

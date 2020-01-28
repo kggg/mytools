@@ -25,7 +25,7 @@ func init() {
 	flag.StringVarP(&target, "target", "t", "", "目标对象")
 	flag.StringVarP(&words, "word", "w", "", "需要操作的内容")
 	flag.StringVarP(&action, "action", "a", "", "操作行为")
-	flag.BoolVarP(&save, "save", "s", false, "保存或者不保存，默认不保存, true|false")
+	flag.BoolVarP(&save, "save", "s", false, "操作文件时， 是否保存操作结果，默认不保存, true|false")
 }
 
 func Command() *Cmd {
@@ -36,6 +36,9 @@ func Command() *Cmd {
 		Words:  words,
 		Action: action,
 		Save:   save,
+	}
+	if cmd.Module == "" {
+		flag.Usage()
 	}
 	return cmd
 }
