@@ -17,5 +17,8 @@ func Initroute() *gin.Engine {
 	r.GET("/test", func(c *gin.Context){
 		c.JSON(http.StatusOK, gin.H{"status": true, "msg":"this is a test page"})
 	})
+	r.GET("/hello", func(c *gin.Context){
+		c.JSON(http.StatusOK, gin.H{"status": true, "msg": "hello world"})
+	})
 	return r
 }

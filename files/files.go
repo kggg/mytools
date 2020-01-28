@@ -254,3 +254,8 @@ func (c *Fileinfo) Search(str string) {
 	}
 
 }
+
+// Replace 替换内容
+func (c *Fileinfo) Replace(src, dst string) {
+	
+}
