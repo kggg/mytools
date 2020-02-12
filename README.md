@@ -27,6 +27,7 @@ mytools 一个工具集, 可以对文件进行相应的操作，也可以对远�
     shift  删除行首内容
     delete 删除内容
     search 查找文件中的相关内容
+    rsearch 以正则匹配模式查找文件中的内容
     save   对文件的操作进行保存
 
 ###   ssh    

@@ -29,6 +29,8 @@ func main() {
 			finfo.Delete(cmd.Words, cmd.Save)
 		case "search":
 			finfo.Search(cmd.Words)
+		case "rsearch":
+			finfo.Rsearch(cmd.Words)
 		default:
 			fmt.Println("nothing to do")
 		}

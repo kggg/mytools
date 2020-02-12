@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"regexp"
 )
 
 // Fileinfo 文件结构
@@ -255,7 +256,24 @@ func (c *Fileinfo) Search(str string) {
 
 }
 
+func (c *Fileinfo) Rsearch(pattern string) {
+	reg := regexp.MustCompile(pattern)
+	content, _, err := c.getcontent()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	for _, v := range content {
+		ss := reg.FindAll(v, -1)
+		if len(ss) > 0 {
+			for _, word := range ss {
+				fmt.Println(string(word))
+			}
+		}
+	}
+}
+
 // Replace 替换内容
 func (c *Fileinfo) Replace(src, dst string) {
-	
+
 }
