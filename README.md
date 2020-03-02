@@ -12,11 +12,11 @@ mytools 一个工具集, 可以对文件进行相应的操作，也可以对远�
 
 ###   files  
 
-Usage of file:
-  -a, --action string   操作行为, operation
-  -p, --path string     文件路径, filepath
-  -s, --save            操作文件时， 是否保存操作结果，默认不保存, true|false
-  -w, --word string     需要操作的内容word
+    Usage of file:
+      -a, --action string   操作行为, operation
+      -p, --path string     文件路径, filepath
+      -s, --save            操作文件时， 是否保存操作结果，默认不保存, true|false
+      -w, --word string     需要操作的内容word
 
 
     append 追加到行尾
@@ -31,9 +31,9 @@ Usage of file:
 
 ###   ssh    
 
-Usage of ssh:
-  -a, --action string   远程执行的模块
-  -h, --host string     远程主机名， 在配置文件config/remote.ini中设置 (default "localhost")
+    Usage of ssh:
+       -a, --action string   远程执行的模块
+       -h, --host string     远程主机名， 在配置文件config/remote.ini中设置 (default "localhost")
 
     -action 为空时， 执行words中的SSH命令
     action为 sendfile发送文件到远程主机,
