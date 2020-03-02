@@ -15,29 +15,63 @@ import (
 type Client struct {
 	SshClient *ssh.Client
 	Addr      string
+	User      string
+	Pass      string
+	Port      int
+	Skey      bool
+	Args      []string
 }
 
-// NewClient 创建ssh连接
-func NewClient(ip, user, pass string, port int, skey bool) (*Client, error) {
+// init 初始化Client
+func (c *Client) init() (*Client, error) {
 	var authMethod ssh.AuthMethod
-	authMethod = ssh.Password(pass)
-	if skey {
+	authMethod = ssh.Password(c.Pass)
+	if c.Skey {
 		file := filepath.Join(os.Getenv("HOME"), ".ssh", "id_rsa")
 		auth, err := PublicKeyFile(file)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("%w", err)
 		}
 		authMethod = auth
 	}
 
-	sshclient, err := connect(ip, user, pass, port, authMethod)
+	sshclient, err := connect(c.Addr, c.User, c.Pass, c.Port, authMethod)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("%w", err)
 	}
-	var conclient = &Client{}
-	conclient.SshClient = sshclient
-	conclient.Addr = ip
-	return conclient, nil
+	c.SshClient = sshclient
+	return c, nil
+}
+
+// RemoteCmd 通过action进行远程操作
+func (c *Client) RemoteCmd(action string) error {
+	client, err := c.init()
+	if err != nil {
+		return err
+	}
+	switch action {
+	case "sendfile":
+		err := client.Sendfile(c.Args[0], c.Args[1])
+		if err != nil {
+			return fmt.Errorf("%w", err)
+		}
+		fmt.Printf("发送文件%s成功\n", c.Args[0])
+	case "getfile":
+		err := client.Getfile(c.Args[0], c.Args[1])
+		if err != nil {
+			fmt.Println(err)
+			return fmt.Errorf("%w", err)
+		}
+		fmt.Printf("接收文件%s成功\n", c.Args[0])
+	case "cmd":
+		result, err := client.Run(c.Args[0])
+		if err != nil {
+			return fmt.Errorf("%w", err)
+		}
+		fmt.Println(string(result))
+	default:
+	}
+	return nil
 }
 
 func (c *Client) session() *ssh.Session {

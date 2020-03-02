@@ -3,277 +3,230 @@ package files
 import (
 	"bufio"
 	"bytes"
+	"errors"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"os"
-	"regexp"
 )
 
 // Fileinfo 文件结构
 type Fileinfo struct {
 	Filename string
+	Save     bool
+	Args     []string
 }
 
-// Append append str to end of line.
-func (c *Fileinfo) Append(str string, save bool) {
-	content, mode, err := c.getcontent()
-	if err != nil {
-		fmt.Println(err)
-		return
+func (c *Fileinfo) Run(action, str string) error {
+	switch action {
+	case "append":
+		c.append(str)
+	case "pop":
+		c.pop(str)
+	case "shift":
+		c.shift(str)
+	case "unshift":
+		c.unshift(str)
+	case "delete":
+		c.delete(str)
+	case "search":
+		c.search(str)
+	case "rsearch":
+		c.rsearch(str)
+	case "replace":
+		c.replace()
+	case "print":
+		c.print()
+	default:
+		return errors.New("Doesn't have operation function of [" + action + "]")
 	}
-	var f *os.File
-	if save {
-		f, err = os.OpenFile(c.Filename, os.O_WRONLY|os.O_TRUNC, mode)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-		defer f.Close()
-	}
-	var newcontent []byte
-	for _, v := range content {
-		if len(v) == 0 {
-			continue
-		}
-		v = bytes.TrimSuffix(v, []byte("\n"))
-		v = bytes.TrimSuffix(v, []byte("\r\n"))
+	return nil
 
-		if save {
-			newcontent = append(newcontent, v...)
-			newcontent = append(newcontent, []byte(str+"\n")...)
-		} else {
-			fmt.Printf("%s %s\n", string(v), str)
-		}
+}
+
+// Save 保存content到文件c.Filename, mode为文件模式
+func (c *Fileinfo) save(content []byte, mode os.FileMode) error {
+	err := ioutil.WriteFile(c.Filename, content, mode)
+	if err != nil {
+		return fmt.Errorf("write file erro: %w\n", err)
 	}
-	if save {
-		_, err = f.Write(newcontent)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-		fmt.Println("append success")
-	}
+	return nil
 }
 
 // Unshift 在行首添加str
-func (c *Fileinfo) Unshift(str string, save bool) {
-	content, mode, err := c.getcontent()
+func (c *Fileinfo) unshift(str string) {
+	file, mode, err := c.getcontent()
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	var f *os.File
-	if save {
-		f, err = os.OpenFile(c.Filename, os.O_WRONLY|os.O_TRUNC, mode)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-		defer f.Close()
-	}
-	var newcontent []byte
-	for _, v := range content {
-		if len(v) == 0 {
-			continue
-		}
-		if save {
-			newcontent = append(newcontent, []byte(str)...)
-			newcontent = append(newcontent, v...)
-			newcontent = append(newcontent, []byte("\n")...)
-		} else {
-			fmt.Printf("%s %s\n", str, v)
-		}
-	}
-	if save {
-		_, err = f.Write(newcontent)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-		fmt.Println("unshift success")
-	}
-}
+	defer file.Close()
 
-//Shift 删除行首中包含str的内容
-func (c *Fileinfo) Shift(str string, save bool) {
-	content, mode, err := c.getcontent()
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	var f *os.File
-	if save {
-		f, err = os.OpenFile(c.Filename, os.O_WRONLY|os.O_TRUNC, mode)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-		defer f.Close()
-	}
 	var newcontent []byte
-	for _, v := range content {
-		v = bytes.TrimPrefix(v, []byte(str))
-		if save {
-			newcontent = append(newcontent, v...)
-			newcontent = append(newcontent, []byte("\n")...)
-		} else {
-			fmt.Printf("%s\n", v)
-		}
-	}
-	if save {
-		_, err = f.Write(newcontent)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-		fmt.Println("shift success")
-	}
-}
-
-//Pop 截取行尾str的内容
-func (c *Fileinfo) Pop(str string, save bool) {
-	content, mode, err := c.getcontent()
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	var f *os.File
-	if save {
-		f, err = os.OpenFile(c.Filename, os.O_WRONLY|os.O_TRUNC, mode)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-		defer f.Close()
-	}
-	var newcontent []byte
-	for _, v := range content {
-		v = bytes.TrimSuffix(v, []byte(str))
-		if save {
-			newcontent = append(newcontent, v...)
-			newcontent = append(newcontent, []byte("\n")...)
-		} else {
-			fmt.Printf("%s\n", v)
-		}
-	}
-	if save {
-		_, err = f.Write(newcontent)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-		fmt.Println("pop success")
-	}
-}
-
-//Delete 删除str的内容
-func (c *Fileinfo) Delete(str string, save bool) {
-	content, mode, err := c.getcontent()
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	var f *os.File
-	if save {
-		f, err = os.OpenFile(c.Filename, os.O_WRONLY|os.O_TRUNC, mode)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-		defer f.Close()
-	}
-	var newcontent []byte
-	for _, v := range content {
-		v := bytes.Replace(v, []byte(str), []byte(""), 1)
-		if save {
-			newcontent = append(newcontent, v...)
-			newcontent = append(newcontent, []byte("\n")...)
-		} else {
-			fmt.Printf("%s\n", v)
-		}
-	}
-	if save {
-		_, err = f.Write(newcontent)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-		fmt.Println("shift success")
-	}
-}
-
-// getcontent 获取文件的内容
-func (c *Fileinfo) getcontent() ([][]byte, os.FileMode, error) {
-	content, err := os.Open(c.Filename)
-	if err != nil {
-		return nil, 0, err
-	}
-	defer content.Close()
-	finfo, err := content.Stat()
-	if err != nil {
-		return nil, 0, err
-	}
-	mode := finfo.Mode()
-	var data [][]byte
-	reader := bufio.NewReader(content)
+	content := bufio.NewReader(file)
 	for {
-		line, _, err := reader.ReadLine()
+		line, err := content.ReadBytes('\n')
 		if err != nil {
 			if err == io.EOF {
 				break
 			}
-			return nil, 0, err
+			fmt.Println(err)
+			return
 		}
-		data = append(data, line)
+		if len(line) == 0 {
+			continue
+		}
+		if c.Save {
+			newcontent = append(newcontent, []byte(str)...)
+			newcontent = append(newcontent, line...)
+			//newcontent = append(newcontent, []byte("\n")...)
+		} else {
+			fmt.Printf("%s %s", str, line)
+		}
 	}
-	return data, mode, nil
+	if c.Save {
+		err = c.save(newcontent, mode)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		fmt.Println("save unshift opertation success")
+	}
+}
+
+//Shift 删除行首中包含str的内容
+func (c *Fileinfo) shift(str string) {
+	file, mode, err := c.getcontent()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	defer file.Close()
+
+	var newcontent []byte
+	content := bufio.NewReader(file)
+	for {
+		line, err := content.ReadBytes('\n')
+		if err != nil {
+			if err == io.EOF {
+				break
+			}
+			fmt.Println(err)
+			return
+		}
+		line = bytes.TrimPrefix(line, []byte(str))
+		line = bytes.TrimPrefix(line, []byte(" "))
+		if c.Save {
+			newcontent = append(newcontent, line...)
+			//newcontent = append(newcontent, []byte("\n")...)
+		} else {
+			fmt.Printf("%s", line)
+		}
+	}
+	if c.Save {
+		err = c.save(newcontent, mode)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		fmt.Println("shift success")
+	}
+}
+
+//Delete 删除str的内容
+func (c *Fileinfo) delete(str string) {
+	file, mode, err := c.getcontent()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	defer file.Close()
+
+	var newcontent []byte
+	content := bufio.NewReader(file)
+	for {
+		line, err := content.ReadBytes('\n')
+		if err != nil {
+			if err == io.EOF {
+				break
+			}
+			fmt.Println(err)
+			return
+		}
+		line = bytes.Replace(line, []byte(str), []byte(""), 1)
+		if c.Save {
+			newcontent = append(newcontent, line...)
+			newcontent = append(newcontent, []byte("\n")...)
+		} else {
+			fmt.Printf("%s\n", line)
+		}
+	}
+	if c.Save {
+		err = c.save(newcontent, mode)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		fmt.Println("delete success")
+	}
+}
+
+// getcontent 获取文件的内容
+func (c *Fileinfo) getcontent() (*os.File, os.FileMode, error) {
+	f, err := os.Open(c.Filename)
+	if err != nil {
+		return nil, 0, fmt.Errorf("Can not open file: %w", err)
+	}
+	//defer f.Close()
+	finfo, err := f.Stat()
+	if err != nil {
+		return nil, 0, fmt.Errorf("read file state error: %w", err)
+	}
+	mode := finfo.Mode()
+	return f, mode, nil
 }
 
 // Print 打印
-func (c *Fileinfo) Print() {
-	content, _, err := c.getcontent()
+func (c *Fileinfo) print() {
+	f, _, err := c.getcontent()
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	for k, v := range content {
-		fmt.Println(k, v)
-	}
-}
-
-// Search 查找内容
-func (c *Fileinfo) Search(str string) {
-	content, _, err := c.getcontent()
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	for _, v := range content {
-		if bytes.Contains(v, []byte(str)) {
-			fmt.Printf("%s\n", v)
-		}
-	}
-
-}
-
-func (c *Fileinfo) Rsearch(pattern string) {
-	reg := regexp.MustCompile(pattern)
-	content, _, err := c.getcontent()
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	for _, v := range content {
-		ss := reg.FindAll(v, -1)
-		if len(ss) > 0 {
-			for _, word := range ss {
-				fmt.Println(string(word))
+	defer f.Close()
+	content := bufio.NewReader(f)
+	for {
+		line, err := content.ReadString('\n')
+		if err != nil {
+			if err == io.EOF {
+				break
 			}
+			fmt.Println(err)
+			return
 		}
+		fmt.Printf("%s", line)
 	}
 }
 
 // Replace 替换内容
-func (c *Fileinfo) Replace(src, dst string) {
-
+func (c *Fileinfo) replace() {
+	f, _, err := c.getcontent()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	defer f.Close()
+	content := bufio.NewReader(f)
+	for {
+		line, err := content.ReadBytes('\n')
+		if err != nil {
+			if err == io.EOF {
+				break
+			}
+			fmt.Println(err)
+			return
+		}
+		line = bytes.Replace(line, []byte(c.Args[0]), []byte(c.Args[1]), -1)
+		fmt.Printf("%s", line)
+	}
 }
